@@ -13,10 +13,11 @@ public class Student {
 	private Integer studentId;
 	private String firstName;
 	private String lastName;
-
-	@OneToMany(mappedBy="student")
-	private List<Subject> subjects;
-	@Transient
+	@ElementCollection
+	@CollectionTable(name = "subject", joinColumns = @JoinColumn(name = "studentId"))
+	@Column(name = "subjectA")
+	private List<String> subjects;
+	@Lob
 	private byte[] avatar;
 
 	public Student(){}
@@ -45,11 +46,11 @@ public class Student {
 		this.lastName = lastName;
 	}
 
-	public List<Subject> getSubjects() {
+	public List<String> getSubjects() {
 		return subjects;
 	}
 
-	public void setSubjects(List<Subject> subjects) {
+	public void setSubjects(List<String> subjects) {
 		this.subjects = subjects;
 	}
 

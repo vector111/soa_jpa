@@ -2,8 +2,8 @@ package pl.edu.agh.kis.soa.model;
 
 import javax.persistence.*;
 
-@Entity
-@Table
+//@Entity
+//@Table
 public class Subject {
 
     @Id
