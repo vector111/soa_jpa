@@ -13,8 +13,8 @@ import javax.xml.bind.annotation.XmlType;
 		name="Student"
 )
 
-@Entity
-@Table(name = "student")
+//@Entity
+//@Table(name = "student")
 public class Student {
 
 	@Id

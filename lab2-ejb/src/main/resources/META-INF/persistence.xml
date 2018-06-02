@@ -4,7 +4,7 @@
     <persistence-unit name="NewPersistenceUnit">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <jta-data-source>java:/mydb</jta-data-source>
-        <class>pl.edu.agh.kis.soa.resources.model.Student</class>
+        <class>pl.edu.agh.kis.soa.model.Student</class>
 
         <properties>
             <property name="hibernate.archive.autodetection" value="class"/>
