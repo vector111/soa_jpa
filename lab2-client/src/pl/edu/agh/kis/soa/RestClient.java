@@ -30,9 +30,11 @@ public class RestClient {
         System.out.println("\nget student's 1 avatar");
         target = client.target("http://localhost:8080/lab2-web/rest/getAvatar/1");
         response = target.register(new BasicAuthentication("user", "user")).request().get();
-        byte[] avatar = response.readEntity(byte[].class);
+        //byte[] avatar = response.readEntity(byte[].class);
+        String avatar2 = response.readEntity(String.class);
         response.close();
-        System.out.println(avatar+"\n");
+        //System.out.println(avatar+"\n");
+        System.out.println(avatar2+"\n");
 
         List<String> subjects = new ArrayList<>();
         subjects.add("SOA");
@@ -40,7 +42,6 @@ public class RestClient {
         subjects.add("Systemy Wbudowane");
 
         Student student = StudentBuilder.aStudent()
-                .withStudentId("3")
                 .withAvatar("C:\\Users\\Admin\\java_workspace\\soa\\abc\\avatar.png")
                 .withFirstName("Baltazar")
                 .withLastName("Gąbka")
@@ -63,7 +64,7 @@ public class RestClient {
             e.printStackTrace();
         }
 
-        System.out.println("Student 3 added");
+        System.out.println("Adding student");
         target = client.target("http://localhost:8080/lab2-web/rest/addStudent");
         response = target.register(new BasicAuthentication("user", "user")).request().put(Entity.entity(jsonInString, "application/json"));
         System.out.println(response.getStatus()+" "+response.getStatusInfo());
@@ -90,12 +91,12 @@ public class RestClient {
         response.close();
         System.out.println(students);
 
-        System.out.println("\nStudent 2 updated");
+    /*    System.out.println("\nStudent 2 updated");
         target = client.target("http://localhost:8080/lab2-web/rest/updateStudent/2");
         response = target.register(new BasicAuthentication("user", "user")).request().put(Entity.entity(jsonInString, "application/json"));
         System.out.println(response.getStatus()+" "+response.getStatusInfo());
         response.close();
-
+*/
         target = client.target("http://localhost:8080/lab2-web/rest/getStudent/2");
         response = target.register(new BasicAuthentication("user", "user")).request().get();
         student1 = response.readEntity(String.class);
