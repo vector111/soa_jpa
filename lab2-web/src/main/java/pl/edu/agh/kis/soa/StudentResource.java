@@ -23,7 +23,9 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+import pl.edu.agh.kis.soa.dao.SomethingDao;
 import pl.edu.agh.kis.soa.dao.StudentDao;
+import pl.edu.agh.kis.soa.model.Something;
 import pl.edu.agh.kis.soa.model.Student;
 import pl.edu.agh.kis.soa.model.StudentBuilder;
 
@@ -43,6 +45,8 @@ public class StudentResource {
 	@Inject
 	StudentDao studentDao;
 
+	@Inject
+	SomethingDao somethingDao;
 
 	private static final Logger logger = Logger.getLogger("StudentResource");
 	private List<Student> students = new ArrayList<>();
@@ -200,5 +204,20 @@ public class StudentResource {
 		fop.flush();
 		fop.close();
 
+	}
+
+
+	/*
+	SOMETHING____________________________________________
+	 */
+
+	@RolesAllowed("other")
+	@PUT
+	@Path("addSomething")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response addSomething(Something something){
+		if(!(something.getSthId() == null)) throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("STH ID is created automatically, remove studentId from JSON!").build());
+		somethingDao.create(something);
+		return Response.status(Response.Status.CREATED).entity("Student added").build();
 	}
 }

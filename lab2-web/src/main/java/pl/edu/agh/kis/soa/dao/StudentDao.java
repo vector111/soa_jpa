@@ -20,4 +20,6 @@ public class StudentDao extends AbstractDao {
     protected Class<Student> getType() {
         return Student.class;
     }
+
+
 }

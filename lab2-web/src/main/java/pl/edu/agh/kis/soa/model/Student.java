@@ -1,8 +1,12 @@
 package pl.edu.agh.kis.soa.model;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @Entity(name = "Student")
 @Table(name = "student")
@@ -23,6 +27,10 @@ public class Student {
 	@Lob
 	@Column(name = "avatar")
 	private byte[] avatar;
+	@OneToMany(cascade = CascadeType.ALL)
+	@LazyCollection(LazyCollectionOption.FALSE)
+	private Set<Something> somethings;
+
 
 	public Student(){}
 
@@ -68,6 +76,14 @@ public class Student {
 
 	public void setAvatar(byte[] avatar) {
 		this.avatar = avatar;
+	}
+
+	public Set<Something> getSomethings() {
+		return somethings;
+	}
+
+	public void setSomethings(Set<Something> somethings) {
+		this.somethings = somethings;
 	}
 
 	@Override
