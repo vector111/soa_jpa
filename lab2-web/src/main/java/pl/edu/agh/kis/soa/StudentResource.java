@@ -25,6 +25,7 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import pl.edu.agh.kis.soa.dao.SomethingDao;
 import pl.edu.agh.kis.soa.dao.StudentDao;
+import pl.edu.agh.kis.soa.dao.SubjectDao;
 import pl.edu.agh.kis.soa.model.Something;
 import pl.edu.agh.kis.soa.model.Student;
 import pl.edu.agh.kis.soa.model.StudentBuilder;
@@ -48,6 +49,9 @@ public class StudentResource {
 
 	@Inject
 	SomethingDao somethingDao;
+
+	@Inject
+	SubjectDao subjectDao;
 
 	private static final Logger logger = Logger.getLogger("StudentResource");
 	private List<Student> students = new ArrayList<>();
@@ -234,5 +238,27 @@ public class StudentResource {
 		if(!(subject.getSubjectId() == null)) throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("STH ID is created automatically, remove studentId from JSON!").build());
 		somethingDao.create(subject);
 		return Response.status(Response.Status.CREATED).entity("Subject added").build();
+	}
+
+	@RolesAllowed("other")
+	@GET
+	@Path("getSubject/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Subject getSubject(@PathParam("id") String subjectId) {
+		Subject subject = subjectDao.get(Integer.valueOf(subjectId));
+		if(subject == null)
+			throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("Subject doesn't exsist!").build());
+		return subject;
+	}
+
+	@RolesAllowed("other")
+	@GET
+	@Path("getSubjectStudents/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Student> getSubjectStudents(@PathParam("id") String subjectId) {
+		Subject subject = subjectDao.get(Integer.valueOf(subjectId));
+		if(subject == null)
+			throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("Subject doesn't exsist!").build());
+		return subject.getStudents();
 	}
 }

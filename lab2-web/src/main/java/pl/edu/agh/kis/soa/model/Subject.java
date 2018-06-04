@@ -21,6 +21,14 @@ public class Subject {
     @JsonIgnore
     private List<Student> students;
 
+    public Subject(Integer id, String subjectName){
+        this.subjectId = id;
+        this.subjectName = subjectName;
+    }
+
+    public Subject() {
+    }
+
     public Integer getSubjectId() {
         return subjectId;
     }

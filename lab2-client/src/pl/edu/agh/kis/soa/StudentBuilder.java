@@ -1,3 +1,5 @@
+import pl.edu.agh.kis.soa.model.Subject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -7,7 +9,7 @@ public final class StudentBuilder {
     private String studentId;
     private String firstName;
     private String lastName;
-    private List<String> subjects;
+    private List<Subject> subjects;
     private byte[] avatar;
 
     private StudentBuilder() {
@@ -32,7 +34,7 @@ public final class StudentBuilder {
         return this;
     }
 
-    public StudentBuilder withSubjects(List<String> subjects) {
+    public StudentBuilder withSubjects(List<Subject> subjects) {
         this.subjects = subjects;
         return this;
     }
@@ -61,7 +63,6 @@ public final class StudentBuilder {
 
     public Student build() {
         Student student = new Student();
-        student.setStudentId(studentId);
         student.setFirstName(firstName);
         student.setLastName(lastName);
         student.setSubjects(subjects);
