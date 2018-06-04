@@ -10,7 +10,7 @@ public final class StudentBuilder {
     private Integer studentId;
     private String firstName;
     private String lastName;
-    private List<String> subjects;
+    private List<Subject> subjects;
     private byte[] avatar;
 
     private StudentBuilder() {
@@ -35,7 +35,7 @@ public final class StudentBuilder {
         return this;
     }
 
-    public StudentBuilder withSubjects(List<String> subjects) {
+    public StudentBuilder withSubjects(List<Subject> subjects) {
         this.subjects = subjects;
         return this;
     }

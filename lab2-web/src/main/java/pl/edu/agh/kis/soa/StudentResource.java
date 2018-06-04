@@ -28,6 +28,7 @@ import pl.edu.agh.kis.soa.dao.StudentDao;
 import pl.edu.agh.kis.soa.model.Something;
 import pl.edu.agh.kis.soa.model.Student;
 import pl.edu.agh.kis.soa.model.StudentBuilder;
+import pl.edu.agh.kis.soa.model.Subject;
 
 /**
  * Klasa wystawiająca interfejs REST.
@@ -218,6 +219,20 @@ public class StudentResource {
 	public Response addSomething(Something something){
 		if(!(something.getSthId() == null)) throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("STH ID is created automatically, remove studentId from JSON!").build());
 		somethingDao.create(something);
-		return Response.status(Response.Status.CREATED).entity("Student added").build();
+		return Response.status(Response.Status.CREATED).entity("Something added").build();
+	}
+
+	/*
+	SUBJECT____________________________________________
+	 */
+
+	@RolesAllowed("other")
+	@PUT
+	@Path("addSubject")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response addSubject(Subject subject){
+		if(!(subject.getSubjectId() == null)) throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("STH ID is created automatically, remove studentId from JSON!").build());
+		somethingDao.create(subject);
+		return Response.status(Response.Status.CREATED).entity("Subject added").build();
 	}
 }

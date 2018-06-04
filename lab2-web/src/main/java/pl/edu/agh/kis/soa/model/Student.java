@@ -20,16 +20,21 @@ public class Student {
 	private String firstName;
 	@Column(name = "last_name", nullable = false)
 	private String lastName;
-	@ElementCollection(fetch = FetchType.EAGER)
+/*	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "subject", joinColumns = @JoinColumn(name = "student_id"))
 	@Column(name = "subject_name")
-	private List<String> subjects;
+	private List<String> subjects;*/
 	@Lob
 	@Column(name = "avatar")
 	private byte[] avatar;
 	@OneToMany(cascade = CascadeType.ALL)
 	@LazyCollection(LazyCollectionOption.FALSE)
 	private Set<Something> somethings;
+	@ManyToMany(cascade = {CascadeType.MERGE})
+	@JoinTable(name = "student_subject", joinColumns = @JoinColumn(name = "student_id"),
+			inverseJoinColumns = @JoinColumn(name = "subject_id"))
+	@LazyCollection(LazyCollectionOption.FALSE)
+	private List<Subject> subjects;
 
 
 	public Student(){}
@@ -62,14 +67,6 @@ public class Student {
 		this.lastName = lastName;
 	}
 
-	public List<String> getSubjects() {
-		return subjects;
-	}
-
-	public void setSubjects(List<String> subjects) {
-		this.subjects = subjects;
-	}
-
 	public byte[] getAvatar() {
 		return avatar;
 	}
@@ -85,6 +82,15 @@ public class Student {
 	public void setSomethings(Set<Something> somethings) {
 		this.somethings = somethings;
 	}
+
+	public List<Subject> getSubjects() {
+		return subjects;
+	}
+
+	public void setSubjects(List<Subject> subjects) {
+		this.subjects = subjects;
+	}
+
 
 	@Override
 	public String toString() {
