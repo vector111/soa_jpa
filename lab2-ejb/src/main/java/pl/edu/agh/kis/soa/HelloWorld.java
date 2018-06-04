@@ -1,7 +1,5 @@
 package pl.edu.agh.kis.soa;
 
-import pl.edu.agh.kis.soa.model.Student;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,9 +12,6 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-
 
 
 @Stateless
@@ -24,6 +19,7 @@ import javax.persistence.PersistenceContext;
 				portName="HelloWorldPort",
 				targetNamespace="http://soa.kis.agh.edu.pl/lab2")
 public class HelloWorld {
+
 	private static Logger logger = Logger.getLogger("HelloWorld");
 
 	public HelloWorld() {
@@ -36,7 +32,7 @@ public class HelloWorld {
 		logger.info(String.format("hello - invoked, who=%s", who));
 		return "Hello " + who;
 	}
-
+/*
 	@WebMethod
 	@WebResult(name="GetStudentResponse", targetNamespace="http://soa.kis.agh.edu.pl/lab2")
 	public Student getStudent(@WebParam(name="albumNo") String id) {
@@ -47,7 +43,7 @@ public class HelloWorld {
 		Student s = new Student("1", "Jan", "Nowak", id, subjects);
 		return s;
 	}
-
+*/
 	/**
 	 * Binarne wczytanie pliku.
 	 * @param path

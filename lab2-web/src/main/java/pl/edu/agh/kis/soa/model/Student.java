@@ -13,7 +13,7 @@ public class Student {
 	private Integer studentId;
 	private String firstName;
 	private String lastName;
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "subject", joinColumns = @JoinColumn(name = "studentId"))
 	@Column(name = "subjectA")
 	private List<String> subjects;
@@ -21,6 +21,10 @@ public class Student {
 	private byte[] avatar;
 
 	public Student(){}
+
+	public Student(Integer studentId){
+		this.studentId=studentId;
+	}
 
 	public Integer getStudentId() {
 		return studentId;
