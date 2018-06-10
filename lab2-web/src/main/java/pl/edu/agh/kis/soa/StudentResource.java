@@ -20,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import com.google.common.base.Strings;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
@@ -77,10 +78,11 @@ public class StudentResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Student> getStudentByFilter(@QueryParam("studentName") String studentName,
 											@QueryParam("subjectName") String subjectName) {
+
 		List<Student> students = null;
-		if((studentName.equals("")) && (subjectName.equals(""))) students = studentDao.list(0,100);
-		else if(studentName.equals("")) students = studentDao.getSubjectByName(subjectName);
-		else if(subjectName.equals("")) students = studentDao.getStudentsByName(studentName);
+		if( Strings.isNullOrEmpty(studentName) && Strings.isNullOrEmpty(subjectName)) students = studentDao.list(0,100);
+		else if(Strings.isNullOrEmpty(studentName)) students = studentDao.getSubjectByName(subjectName);
+		else if(Strings.isNullOrEmpty(subjectName)) students = studentDao.getStudentsByName(studentName);
 		else students = studentDao.getStudentsByFilter(studentName, subjectName);
 		if(students.isEmpty())
 			throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("Students not found!").build());
@@ -88,35 +90,11 @@ public class StudentResource {
 			return students;
 	}
 
-	/*@RolesAllowed("other")
-	@GET
-	@Path("getStudentByName/{studentName}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public List<Student> getStudentByName(@PathParam("studentName") String studentName) {
-		List<Student> students = studentDao.getStudentsByName(studentName);
-		if(students.isEmpty())
-			throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("Students not found!").build());
-		else
-			return students;
-	}
-
 	@RolesAllowed("other")
 	@GET
-	@Path("getStudentBySubject/{subjectName}")
+	@Path("student/{id}/avatar")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Student> getStudentBySubject(@PathParam("subjectName") String subjectName) {
-		List<Student> students = studentDao.getStudentsBySubject(subjectName);
-		if(students.isEmpty())
-			throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("Students not found!").build());
-		else
-			return students;
-	}*/
-
-	@RolesAllowed("other")
-	@GET
-	@Path("avatar/{id}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public byte[] getAvatarById(@PathParam("id") String id) {
+	public byte[] getAvatarByStudentId(@PathParam("id") String id) {
 		Student student = studentDao.get(Integer.valueOf(id));
 		if(student == null)
 			throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("Student not found!").build());
@@ -131,8 +109,21 @@ public class StudentResource {
 	@Path("student")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addStudent(Student student){
-		if(!(student.getStudentId() == null)) throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("Student ID is created automatically, remove studentId from JSON!").build());
-		if(student.getFirstName() == null || student.getLastName() == null) throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("Student must have first name and last name!").build());
+		if(!(student.getStudentId() == null))
+			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+					.entity("Student ID is created automatically, remove studentId from JSON!").build());
+		if(Strings.isNullOrEmpty(student.getFirstName())  || Strings.isNullOrEmpty(student.getLastName()))
+			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+					.entity("Student must have first name and last name!").build());
+
+		for(Subject subject : student.getSubjects()){
+			if(subject.getSubjectId()==null)
+				throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+						.entity("Specify id of subject!").build());
+			if(subjectDao.get(subject.getSubjectId())==null)
+				throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+						.entity("Subject with id="+subject.getSubjectId()+" doesn't exist!").build());
+		}
 
 		studentDao.create(student);
 		return Response.status(Response.Status.CREATED).entity("Student added").build();
@@ -155,15 +146,32 @@ public class StudentResource {
 	@Path("student/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateStudent(@PathParam("id") String id, Student student){
-		if(studentDao.get(Integer.valueOf(id)) == null)return Response.status(Response.Status.NOT_FOUND).entity("Student doesn't exsist!").build();
-		if(student.getFirstName() == null || student.getLastName() == null) throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("Student must have first name and last name!").build());
-		studentDao.update(student);
+		if(studentDao.get(Integer.valueOf(id)) == null)
+			return Response.status(Response.Status.NOT_FOUND).entity("Student doesn't exsist!").build();
+		if(Strings.isNullOrEmpty(student.getFirstName())  || Strings.isNullOrEmpty(student.getLastName()))
+			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("Student must have first name and last name!").build());
+		for(Subject subject : student.getSubjects()){
+			if(subject.getSubjectId()==null)
+				throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+						.entity("Specify id of subject!").build());
+			if(subjectDao.get(subject.getSubjectId())==null)
+				throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND)
+						.entity("Subject with id="+subject.getSubjectId()+" doesn't exist!").build());
+		}
+		Student student1 = new Student(
+				Integer.valueOf(id),
+				student.getFirstName(),
+				student.getLastName(),
+				student.getAvatar(),
+				student.getSomethings(),
+				student.getSubjects());
+		studentDao.update(student1);
 		return Response.status(Response.Status.OK).entity("Student updated").build();
 	}
 
 	@RolesAllowed("other")
 	@POST
-	@Path("addAvatarForStudent/{id}")
+	@Path("student/{id}/avatar")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public Response uploadAvatar(@PathParam("id") String studentId, MultipartFormDataInput input){
 
@@ -171,10 +179,15 @@ public class StudentResource {
 		if(s == null)
 			throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("Student not found!").build());
 
+
 		String fileName = "";
 
 		Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
+		if(!uploadForm.containsKey("uploadedFile"))
+			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("Key should have name 'uploadedFile'!").build());
 		List<InputPart> inputParts = uploadForm.get("uploadedFile");
+		if(inputParts==null)
+			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("Add some avatar, file is empty!").build());
 
 		for (InputPart inputPart : inputParts) {
 
@@ -248,10 +261,15 @@ public class StudentResource {
 
 	@RolesAllowed("other")
 	@PUT
-	@Path("addSomething")
+	@Path("something")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addSomething(Something something){
-		if(!(something.getSthId() == null)) throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("STH ID is created automatically, remove studentId from JSON!").build());
+		if(!(something.getSthId() == null))
+			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+					.entity("STH ID is created automatically, remove studentId from JSON!").build());
+		if(Strings.isNullOrEmpty(something.getSthName()))
+			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+					.entity("Specify something name!").build());
 		somethingDao.create(something);
 		return Response.status(Response.Status.CREATED).entity("Something added").build();
 	}
@@ -265,7 +283,12 @@ public class StudentResource {
 	@Path("subject")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addSubject(Subject subject){
-		if(!(subject.getSubjectId() == null)) throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("STH ID is created automatically, remove studentId from JSON!").build());
+		if(!(subject.getSubjectId() == null))
+			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+					.entity("STH ID is created automatically, remove studentId from JSON!").build());
+		if(Strings.isNullOrEmpty(subject.getSubjectName()))
+			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+					.entity("Specify subject name!").build());
 		somethingDao.create(subject);
 		return Response.status(Response.Status.CREATED).entity("Subject added").build();
 	}
@@ -283,7 +306,7 @@ public class StudentResource {
 
 	@RolesAllowed("other")
 	@GET
-	@Path("getSubjectStudents/{id}")
+	@Path("subject/{id}/students/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Student> getSubjectStudents(@PathParam("id") String subjectId) {
 		Subject subject = subjectDao.get(Integer.valueOf(subjectId));

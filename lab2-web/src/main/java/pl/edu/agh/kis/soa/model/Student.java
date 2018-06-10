@@ -39,8 +39,13 @@ public class Student {
 
 	public Student(){}
 
-	public Student(Integer studentId){
-		this.studentId=studentId;
+	public Student(Integer studentId, String firstName, String lastName, byte[] avatar, Set<Something> somethings, List<Subject> subjects) {
+		this.studentId = studentId;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.avatar = avatar;
+		this.somethings = somethings;
+		this.subjects = subjects;
 	}
 
 	public Integer getStudentId() {
