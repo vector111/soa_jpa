@@ -62,7 +62,7 @@ public class StudentResource {
 
 	@RolesAllowed("other")
 	@GET
-	@Path("getStudent/{id}")
+	@Path("student/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Student getStudent(@PathParam("id") String studentId) {
 		Student student = studentDao.get(Integer.valueOf(studentId));
@@ -73,10 +73,27 @@ public class StudentResource {
 
 	@RolesAllowed("other")
 	@GET
-	@Path("getStudents")
+	@Path("student")
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Student> getStudents() {
-		List<Student> students = studentDao.list(0,100);
+	public List<Student> getStudentByFilter(@QueryParam("studentName") String studentName,
+											@QueryParam("subjectName") String subjectName) {
+		List<Student> students = null;
+		if((studentName.equals("")) && (subjectName.equals(""))) students = studentDao.list(0,100);
+		else if(studentName.equals("")) students = studentDao.getSubjectByName(subjectName);
+		else if(subjectName.equals("")) students = studentDao.getStudentsByName(studentName);
+		else students = studentDao.getStudentsByFilter(studentName, subjectName);
+		if(students.isEmpty())
+			throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("Students not found!").build());
+		else
+			return students;
+	}
+
+	/*@RolesAllowed("other")
+	@GET
+	@Path("getStudentByName/{studentName}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Student> getStudentByName(@PathParam("studentName") String studentName) {
+		List<Student> students = studentDao.getStudentsByName(studentName);
 		if(students.isEmpty())
 			throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("Students not found!").build());
 		else
@@ -85,7 +102,19 @@ public class StudentResource {
 
 	@RolesAllowed("other")
 	@GET
-	@Path("getAvatar/{id}")
+	@Path("getStudentBySubject/{subjectName}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Student> getStudentBySubject(@PathParam("subjectName") String subjectName) {
+		List<Student> students = studentDao.getStudentsBySubject(subjectName);
+		if(students.isEmpty())
+			throw new WebApplicationException(Response.status(Response.Status.NOT_FOUND).entity("Students not found!").build());
+		else
+			return students;
+	}*/
+
+	@RolesAllowed("other")
+	@GET
+	@Path("avatar/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public byte[] getAvatarById(@PathParam("id") String id) {
 		Student student = studentDao.get(Integer.valueOf(id));
@@ -99,18 +128,19 @@ public class StudentResource {
 
 	@RolesAllowed("other")
 	@PUT
-	@Path("addStudent")
+	@Path("student")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addStudent(Student student){
 		if(!(student.getStudentId() == null)) throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("Student ID is created automatically, remove studentId from JSON!").build());
 		if(student.getFirstName() == null || student.getLastName() == null) throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("Student must have first name and last name!").build());
+
 		studentDao.create(student);
 		return Response.status(Response.Status.CREATED).entity("Student added").build();
 	}
 
 	@RolesAllowed("other")
 	@DELETE
-	@Path("deleteStudent/{id}")
+	@Path("student/{id}")
 	public Response deleteStudent(@PathParam("id") String id){
 		Student student = studentDao.get(Integer.valueOf(id));
 		if(student == null)
@@ -121,8 +151,8 @@ public class StudentResource {
 	}
 
 	@RolesAllowed("other")
-	@PUT
-	@Path("updateStudent/{id}")
+	@POST
+	@Path("student/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateStudent(@PathParam("id") String id, Student student){
 		if(studentDao.get(Integer.valueOf(id)) == null)return Response.status(Response.Status.NOT_FOUND).entity("Student doesn't exsist!").build();
@@ -232,7 +262,7 @@ public class StudentResource {
 
 	@RolesAllowed("other")
 	@PUT
-	@Path("addSubject")
+	@Path("subject")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response addSubject(Subject subject){
 		if(!(subject.getSubjectId() == null)) throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("STH ID is created automatically, remove studentId from JSON!").build());
@@ -242,7 +272,7 @@ public class StudentResource {
 
 	@RolesAllowed("other")
 	@GET
-	@Path("getSubject/{id}")
+	@Path("subject/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Subject getSubject(@PathParam("id") String subjectId) {
 		Subject subject = subjectDao.get(Integer.valueOf(subjectId));
