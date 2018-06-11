@@ -149,7 +149,8 @@ public class StudentResource {
 		if(studentDao.get(Integer.valueOf(id)) == null)
 			return Response.status(Response.Status.NOT_FOUND).entity("Student doesn't exsist!").build();
 		if(Strings.isNullOrEmpty(student.getFirstName())  || Strings.isNullOrEmpty(student.getLastName()))
-			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("Student must have first name and last name!").build());
+			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+					.entity("Student must have first name and last name!").build());
 		for(Subject subject : student.getSubjects()){
 			if(subject.getSubjectId()==null)
 				throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
@@ -184,10 +185,9 @@ public class StudentResource {
 
 		Map<String, List<InputPart>> uploadForm = input.getFormDataMap();
 		if(!uploadForm.containsKey("uploadedFile"))
-			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("Key should have name 'uploadedFile'!").build());
+			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+					.entity("Key should have name 'uploadedFile'!").build());
 		List<InputPart> inputParts = uploadForm.get("uploadedFile");
-		if(inputParts==null)
-			throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity("Add some avatar, file is empty!").build());
 
 		for (InputPart inputPart : inputParts) {
 
